@@ -16,36 +16,16 @@ TO INSTALL:
 
 This will setup the pool ready for coin daemons to be added.
 
-
-Add your exchange API public and secret keys in these two separated files:
-
-	/etc/yiimp/keys.php - fixed path in code
-	web/serverconfig.php - use sample as base...
-
-You can find sample config files in web/serverconfig.sample.php and web/keys.sample.php
-
-This web application includes some command line tools, add bin/ folder to your path and type "yiimp" to list them, "yiimp checkup" can help to test your initial setup.
-Future scripts and maybe the "cron" jobs will then use this yiic console interface.
-
 You need at least three backend shells (in screen) running these scripts:
 
 	web/main.sh
 	web/loop2.sh
 	web/block.sh
+	
+The install script will create a file in the ~/ directory called screen-start.sh which you will need to run. This file has the above scripts in it.
 
-Start one stratum per algo using the run.sh script with the algo as parameter. For example, for x11:
 
-	run.sh x11
-
-Edit each .conf file with proper values.
-
-Look at rc.local, it starts all three backend shells and all stratum processes. Copy it to the /etc folder so that all screen shells are started at boot up.
-
-All your coin's config files need to blocknotify their corresponding stratum using something like:
-
-	blocknotify=blocknotify yaamp.com:port coinid %s
-
-On the website, go to http://server.com/site/adminRights to login as admin. You have to change it to something different in the code (web/yaamp/modules/site/SiteController.php). A real admin login may be added later, but you can setup a password authentification with your web server, sample for lighttpd:
+On the website, go to http://server.com/site/adminRights to login as admin. You have to change it to something different in the code (web/yaamp/modules/site/SiteController.php) or the during the install. A real admin login may be added later, but you can setup a password authentification with your web server, sample for lighttpd:
 
 	htpasswd -c /etc/yiimp/admin.htpasswd <adminuser>
 
@@ -73,14 +53,15 @@ There are logs generated in the /var/stratum folder and /var/log/stratum/debug.l
 More instructions coming as needed.
 
 
-There a lot of unused code in the php branch. Lot come from other projects I worked on and I've been lazy to clean it up before to integrate it to yaamp. It's mostly based on the Yii framework which implements a lightweight MVC.
-
-	http://www.yiiframework.com/
 
 
 Credits:
 
 Thanks to globalzon to have released the initial Yaamp source code.
+
+Thanks to tpruvot for the yiimp source code.
+
+Thanks to oakey22 for the install script.
 
 --
 
