@@ -789,6 +789,16 @@ sudo sed -i 's/username = root/username = stratum/g' *.conf
 sudo sed -i 's/password = patofpaq/password = '$password2'/g' *.conf
 cd ~
 
+sudo rm -rf $HOME/yiimp
+sudo service nginx restart
+sudo service php7.0-fpm reload
+sudo add-apt-repository ppa:bitcoin/bitcoin -y
+sudo apt-get update
+sudo apt-get install unzip libdb4.8-dev libdb4.8++-dev build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git libboost-all-dev libminiupnpc-dev libqt5gui5 libqt5core5a libqt5webkit5-dev libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev -y
+cd ~
+wget https://github.com/lbryio/lbrycrd/releases/download/v0.12.1.0/lbrycrd-linux.zip
+sudo unzip lbrycrd-linux.zip -d /usr/bin
+
 
 output "Final Directory permissions"
 output ""
@@ -811,23 +821,15 @@ sudo chmod -R 775 /var/web/serverconfig.php
 sudo chmod a+w /var/web/yaamp/runtime
 sudo chmod a+w /var/log
 sudo chmod a+w /var/web/assets
-sudo rm -rf $HOME/yiimp
-sudo service nginx restart
-sudo service php7.0-fpm reload
-sudo add-apt-repository ppa:bitcoin/bitcoin -y
-sudo apt-get update
-sudo apt-get install unzip libdb4.8-dev libdb4.8++-dev build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils git libboost-all-dev libminiupnpc-dev libqt5gui5 libqt5core5a libqt5webkit5-dev libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libqrencode-dev -y
-cd ~
-wget https://github.com/lbryio/lbrycrd/releases/download/v0.12.1.0/lbrycrd-linux.zip
-sudo unzip lbrycrd-linux.zip -d /usr/bin
-
-# Create config for Infinex
+sleep 3
+lbrycrdd -daemon
+sleep 3
+lbrycrd-cli stop
+# Create config for Lbry
 echo && echo "Configuring Lbrycrd.conf"
 sleep 3
 rpcuser=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
 rpcpassword=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
-sudo mkdir -p ~/.lbrycrd
-sudo touch ~/.lbrycrd/lbrycrd.conf
 echo '
 rpcuser='$rpcuser'
 rpcpassword='$rpcpassword'
@@ -841,12 +843,17 @@ gen=0
 alertnotify=echo %s | mail -s "LBRY Credits alert!" ${EMAIL}
 blocknotify=blocknotify 127.0.0.1:3334 1439 %s
 ' | sudo -E tee ~/.lbrycrd/lbrycrd.conf
+sleep 3
 
 lbrycrdd -daemon
-sleep 10
-sudo ~/.screen-start.sh
-
+sudo bash ~/screen-start.sh
+sudo chown -R www-data:www-data /var/log
 
 clear
 output "Your mysql information is saved in ~/.my.cnf"
+output ""
+output "Please login to the admin panel at http://${server_name}/site/${admin_panel}"
+output ""
+output "Your RPC username is ${rpcuser}"
+output "Your RPC Password is ${rpcpassword}"
 
