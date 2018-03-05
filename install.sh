@@ -799,6 +799,32 @@ cd ~
 wget https://github.com/lbryio/lbrycrd/releases/download/v0.12.1.0/lbrycrd-linux.zip
 sudo unzip lbrycrd-linux.zip -d /usr/bin
 
+lbrycrdd -daemon
+sleep 3
+lbrycrd-cli stop
+
+
+# Create config for Lbry
+echo && echo "Configuring Lbrycrd.conf"
+sleep 3
+rpcuser=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+rpcpassword=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
+echo '
+rpcuser='$rpcuser'
+rpcpassword='$rpcpassword'
+rpcport=14390
+rpcthreads=24
+rpcallowip=127.0.0.1
+# onlynet=ipv4
+maxconnections=36
+daemon=1
+gen=0
+alertnotify=echo %s | mail -s "LBRY Credits alert!" ${EMAIL}
+blocknotify=blocknotify 127.0.0.1:3334 1439 %s
+' | sudo -E tee ~/.lbrycrd/lbrycrd.conf
+sleep 3
+
+
 
 output "Final Directory permissions"
 output ""
@@ -821,33 +847,8 @@ sudo chmod -R 775 /var/web/serverconfig.php
 sudo chmod a+w /var/web/yaamp/runtime
 sudo chmod a+w /var/log
 sudo chmod a+w /var/web/assets
-sleep 3
-lbrycrdd -daemon
-sleep 3
-lbrycrd-cli stop
-# Create config for Lbry
-echo && echo "Configuring Lbrycrd.conf"
-sleep 3
-rpcuser=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
-rpcpassword=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1`
-echo '
-rpcuser='$rpcuser'
-rpcpassword='$rpcpassword'
-rpcport=14390
-rpcthreads=24
-rpcallowip=127.0.0.1
-# onlynet=ipv4
-maxconnections=36
-daemon=1
-gen=0
-alertnotify=echo %s | mail -s "LBRY Credits alert!" ${EMAIL}
-blocknotify=blocknotify 127.0.0.1:3334 1439 %s
-' | sudo -E tee ~/.lbrycrd/lbrycrd.conf
-sleep 3
 
 lbrycrdd -daemon
-sudo bash ~/screen-start.sh
-sudo chown -R www-data:www-data /var/log
 
 clear
 output "Your mysql information is saved in ~/.my.cnf"
